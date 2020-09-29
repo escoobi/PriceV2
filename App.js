@@ -1,9 +1,10 @@
-import { KeyboardAvoidingView, StatusBar, FlatList, Text, StyleSheet, View, Modal, Image, TouchableOpacity, Platform } from 'react-native';
+import { KeyboardAvoidingView, StatusBar, FlatList, Text, StyleSheet, ImageBackground, View, Modal, Image, TouchableOpacity, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
 import TextInput from 'react-native-textinput-with-icons';
 import React, { useState, useEffect } from 'react';
+import * as AppleAuthentication from 'expo-apple-authentication';
 
 
 function Login() {
@@ -11,14 +12,15 @@ function Login() {
 
   return (
 
+
+
+
     < View style={styles.container} >
-
       <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : null}>
-
-        <Image source={require('./assets/icon.png')}
+        <Image source={require('./assets/logoAuth.png')}
           style={styles.logo} />
         <StatusBar barStyle='dark-content'></StatusBar>
-        <TextInput textContentType='emailAddress' keyboardType='email-address' marginBottom={20}
+        <TextInput textContentType='emailAddress' keyboardType='email-address'
           leftIcon="mail"
           leftIconSize={25}
           leftIconColor="#222221"
@@ -27,14 +29,12 @@ function Login() {
 
           underlineColor="#222221"
           underlineActiveColor="#222221"
-          label="E-mail"
           labelActiveColor="#222221"
           labelColor="#222221"
           fontSize={16}
           fontWeight="bold" />
 
         <TextInput secureTextEntry={true} returnKey autoCorrect={false}
-          marginBottom={20}
           leftIcon="key"
           leftIconSize={25}
           leftIconColor="#222221"
@@ -43,15 +43,42 @@ function Login() {
 
           underlineColor="#222221"
           underlineActiveColor="#222221"
-          label="Senha"
           labelActiveColor="#222221"
           labelColor="#222221"
           fontSize={16}
           fontWeight="bold"
         />
+        <Text style={styles.avisoResitro}>Ainda não possui uma conta? Registre-se</Text>
         <TouchableOpacity style={styles.botao} onPress={() => navigation.navigate('principal')}>
           <Text style={styles.btnTexto}>Login</Text>
         </TouchableOpacity>
+
+        <AppleAuthentication.AppleAuthenticationButton
+          buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+          buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+          cornerRadius={5}
+          style={{ width: 200, height: 44 }}
+          onPress={async () => {
+            try {
+              const credential = await AppleAuthentication.signInAsync({
+                requestedScopes: [
+                  AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+                  AppleAuthentication.AppleAuthenticationScope.EMAIL,
+                ],
+              });
+              // signed in
+              console.log("foi");
+              navigation.navigate('principal');
+
+            } catch (e) {
+              if (e.code === 'ERR_CANCELED') {
+                // handle that the user canceled the sign-in flow
+              } else {
+                // handle other errors
+              }
+            }
+          }}
+        />
 
       </KeyboardAvoidingView>
     </View>
@@ -167,9 +194,9 @@ function Principal() {
             <Text style={styles.txtInfoDados}>{selectedSeg}</Text>
             <Text style={styles.txtInfo}>Contação Intraday: </Text>
             <Text style={styles.txtInfoDados}>R$: {selectedCot}</Text>
-            <Text style={styles.txtInfo}>Valuation Intrínseco: </Text>
+            <Text style={styles.txtInfo}>Valor Intrínseco: </Text>
             <Text style={styles.txtInfoDados}>R$: {selectedIntrisseco}</Text>
-            <Text style={styles.txtInfo}>Valuation Fluxo de Caixa Descontado (FCD): </Text>
+            <Text style={styles.txtInfo}>Valor Fluxo de Caixa Descontado (FCD): </Text>
             <Text style={styles.txtInfoDados}>R$: {selectedDamodaran}</Text>
             <Text style={styles.txtInfo}>Cotação X Intrínseco: </Text>
             <Text style={styles.txtInfoDados}>{selectedDifPercIntrisseco} %</Text>
@@ -184,7 +211,7 @@ function Principal() {
           <View style={styles.containerBtnFechar}>
             <TouchableOpacity style={styles.botaoModal} onPress={() => {
               setModalVisible(false);
-              }}>
+            }}>
               <Text style={styles.btnTexto}>Fechar!</Text>
             </TouchableOpacity>
           </View>
@@ -245,21 +272,28 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    justifyContent: "center",
-    alignItems: "center"
+    backgroundColor: "#FFF",
+    alignItems: "center",
+    justifyContent: "center"
   },
   logo: {
-    width: 140,
-    height: 140,
-    borderRadius: 100,
-    marginBottom: 10
+    width: 160,
+    height: 160,
+    resizeMode: 'contain',
   },
+
+  avisoResitro: {
+    marginTop: 10,
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#222221"
+  },
+
   botao: {
+    marginTop: 30,
     width: 300,
     height: 42,
     backgroundColor: "#00913D",
-    marginTop: 10,
     borderRadius: 4,
     alignItems: "center",
     justifyContent: "center"
@@ -338,6 +372,7 @@ const styles = StyleSheet.create({
   logoEmpResult: {
     width: 86,
     height: 86,
+    marginRight: 20
 
 
   },
@@ -364,12 +399,13 @@ const styles = StyleSheet.create({
   txtInfo: {
     fontSize: 15,
     padding: 5,
+    marginLeft: 5,
     fontWeight: 'bold'
 
   },
   txtInfoDados: {
     fontSize: 12,
-    marginLeft: 15
+    marginLeft: 20
   },
 
 })

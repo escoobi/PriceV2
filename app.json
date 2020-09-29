@@ -6,12 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "width": 80,
-      "height": 80,
-      "borderRadius": 100,
-      "backgroundColor": "#FFF"
+      "image": "./assets/splash.png"
       
     },
     "updates": {
