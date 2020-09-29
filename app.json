@@ -8,7 +8,11 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "width": 80,
+      "height": 80,
+      "borderRadius": 100,
+      "backgroundColor": "#FFF"
+      
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -17,8 +21,16 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "requireFullScreen": true,
+      "bundleIdentifier": "Yes"
+      
     },
+
+ 
+    
+
+   
     "web": {
       "favicon": "./assets/favicon.png"
     }
