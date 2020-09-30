@@ -5,9 +5,15 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "platforms": [
+      "android",
+      "ios"
+    ],
     "splash": {
       "image": "./assets/splash.png"
-      
+    },
+    "androidStatusBar": {
+      "backgroundColor": "#000"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -18,14 +24,18 @@
     "ios": {
       "supportsTablet": true,
       "requireFullScreen": true,
-      "bundleIdentifier": "Yes"
-      
+      "bundleIdentifier": "br.app.price",
+      "config": {
+        "googleSignIn": {
+          "reservedClientId": "391799328882-1mj5jgtqja6o7h9bio7fns0ucnlifrqe.apps.googleusercontent.com"
+        }
+      }
     },
-
- 
-    
-
-   
+    "android": {
+      "package": "br.app.price",
+      "versionCode": 19,
+      "googleServicesFile": "./google-services.json"
+    },
     "web": {
       "favicon": "./assets/favicon.png"
     }

@@ -1,86 +1,73 @@
-import { KeyboardAvoidingView, StatusBar, FlatList, Text, StyleSheet, ImageBackground, View, Modal, Image, TouchableOpacity, Platform } from 'react-native';
+import { StatusBar, FlatList, Text, StyleSheet, View, Modal, Image, Button, TouchableOpacity, ShadowPropTypesIOS } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { Assets, createStackNavigator } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
 import TextInput from 'react-native-textinput-with-icons';
 import React, { useState, useEffect } from 'react';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
 
+WebBrowser.maybeCompleteAuthSession();
 
 function Login() {
   const navigation = useNavigation();
 
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    expoClientId: '391799328882-5sp054b8r201pv7r0kf74m803vpigu91.apps.googleusercontent.com',
+    iosClientId: '391799328882-1mj5jgtqja6o7h9bio7fns0ucnlifrqe.apps.googleusercontent.com',
+    androidClientId: '391799328882-mktjd75qt55bufnot8b4le2imhin8dc8.apps.googleusercontent.com',
+    webClientId: '391799328882-5sp054b8r201pv7r0kf74m803vpigu91.apps.googleusercontent.com',
+  });
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      //const { authentication } = response;
+      navigation.navigate('principal');
+    }
+  }, [response]);
+
+
   return (
-
-
-
-
     < View style={styles.container} >
-      <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : null}>
-        <Image source={require('./assets/logoAuth.png')}
-          style={styles.logo} />
-        <StatusBar barStyle='dark-content'></StatusBar>
-        <TextInput textContentType='emailAddress' keyboardType='email-address'
-          leftIcon="mail"
-          leftIconSize={25}
-          leftIconColor="#222221"
-          leftIconType="oct"
-          rippleColor="#222221"
 
-          underlineColor="#222221"
-          underlineActiveColor="#222221"
-          labelActiveColor="#222221"
-          labelColor="#222221"
-          fontSize={16}
-          fontWeight="bold" />
+      <Image source={require('./assets/logoAuth.png')}
+        style={styles.logo} />
+      <StatusBar barStyle='dark-content'></StatusBar>
 
-        <TextInput secureTextEntry={true} returnKey autoCorrect={false}
-          leftIcon="key"
-          leftIconSize={25}
-          leftIconColor="#222221"
-          leftIconType="oct"
-          rippleColor="#222221"
+      <TouchableOpacity style={styles.googleAuth} onPress={() => { promptAsync(); }}>
+        <Image style={styles.logoGoogle} source={require('./assets/g.png')} />
+        <Text style={styles.txtGoogle}>Continue com o Google</Text>
+      </TouchableOpacity>
 
-          underlineColor="#222221"
-          underlineActiveColor="#222221"
-          labelActiveColor="#222221"
-          labelColor="#222221"
-          fontSize={16}
-          fontWeight="bold"
-        />
-        <Text style={styles.avisoResitro}>Ainda não possui uma conta? Registre-se</Text>
-        <TouchableOpacity style={styles.botao} onPress={() => navigation.navigate('principal')}>
-          <Text style={styles.btnTexto}>Login</Text>
-        </TouchableOpacity>
+      <TouchableOpacity style={styles.googleAuth} onPress={async () => {
+        try {
+          const credential = await AppleAuthentication.signInAsync({
+            requestedScopes: [
+              AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+              AppleAuthentication.AppleAuthenticationScope.EMAIL,
+            ],
+          });
+          // signed in
+          console.log("foi");
+          navigation.navigate('principal');
 
-        <AppleAuthentication.AppleAuthenticationButton
-          buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-          buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-          cornerRadius={5}
-          style={{ width: 200, height: 44 }}
-          onPress={async () => {
-            try {
-              const credential = await AppleAuthentication.signInAsync({
-                requestedScopes: [
-                  AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-                  AppleAuthentication.AppleAuthenticationScope.EMAIL,
-                ],
-              });
-              // signed in
-              console.log("foi");
-              navigation.navigate('principal');
+        } catch (e) {
+          if (e.code === 'ERR_CANCELED') {
+            // handle that the user canceled the sign-in flow
+            
+          } else {
+            // handle other errors
+          }
+        }
+      }}>
+        <Image style={styles.logoGoogle} source={require('./assets/a.png')} />
+        <Text style={styles.txtGoogle}>Continue com a Apple</Text>
+      </TouchableOpacity>
 
-            } catch (e) {
-              if (e.code === 'ERR_CANCELED') {
-                // handle that the user canceled the sign-in flow
-              } else {
-                // handle other errors
-              }
-            }
-          }}
-        />
+    
 
-      </KeyboardAvoidingView>
+
     </View>
 
   );
@@ -92,9 +79,6 @@ function Principal() {
   const navigation = useNavigation();
   const [empresas, setEmpresas] = useState([]);
   const [filteredEmpresas, setFilteredEmpresas] = useState([]);
-
-
-
 
   useEffect(() => {
     fetch('http://price.app.br:3000/empresa')
@@ -222,7 +206,7 @@ function Principal() {
 
 
       <View style={styles.containerPesquisaEmpresa}>
-        <TextInput marginBottom={10} onChangeText={(text) => findEmpresa(text)}
+        <TextInput marginBottom={10} onChangeText={(text) => findEmpresa(text)} autoFocus={true}
           leftIcon="search"
           leftIconSize={30}
           leftIconColor="#222221"
@@ -232,16 +216,11 @@ function Principal() {
           underlineActiveColor="#222221"
           label="Código da empresa"
           labelActiveColor="#22221"
-          labelColor="#222221"
           fontSize={16}
           fontWeight="bold" />
         <View style={styles.containerPesquisaEmpresaResultado}>
           <FlatList data={filteredEmpresas} renderItem={renderItem} onPress={() => obterItem(item)} keyExtractor={item => item.key} extraData={selectedTik} />
         </View>
-
-
-
-
         <TouchableOpacity style={styles.botao} onPress={() => navigation.navigate('login')}>
           <Text style={styles.btnTexto}>Sair</Text>
         </TouchableOpacity>
@@ -251,10 +230,8 @@ function Principal() {
   );
 }
 
-
 const Stack = createStackNavigator();
 export default class App extends React.Component {
-
 
   render() {
     return (
@@ -277,8 +254,8 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   logo: {
-    width: 160,
-    height: 160,
+    width: 220,
+    height: 220,
     resizeMode: 'contain',
   },
 
@@ -286,7 +263,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 12,
     fontWeight: "bold",
-    color: "#222221"
+
   },
 
   botao: {
@@ -406,6 +383,34 @@ const styles = StyleSheet.create({
   txtInfoDados: {
     fontSize: 12,
     marginLeft: 20
+  },
+
+  googleAuth: {
+    alignContent: 'center',
+    width: 260,
+    height: 44,
+    marginTop: 10,
+    borderRadius: 5,
+    borderColor: '#000',
+    borderWidth: 0.5
+
+
+  },
+
+  txtGoogle: {
+    fontSize: 19,
+    marginLeft: 50,
+    marginTop: -20,
+
+
+
+  },
+
+  logoGoogle: {
+    width: 22,
+    height: 22,
+    marginTop: 10,
+    marginLeft: 15,
   },
 
 })
