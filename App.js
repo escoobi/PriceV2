@@ -8,6 +8,9 @@ import * as AppleAuthentication from 'expo-apple-authentication';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 
+
+
+//teste
 WebBrowser.maybeCompleteAuthSession();
 
 function Login() {
