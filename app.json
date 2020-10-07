@@ -33,8 +33,8 @@
     },
     "android": {
       "package": "br.app.price",
-      "versionCode": 19,
-      "googleServicesFile": "./google-services.json"
+      "versionCode": 19
+      
     },
     "web": {
       "favicon": "./assets/favicon.png"
