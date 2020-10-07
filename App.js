@@ -7,11 +7,17 @@ import React, { useState, useEffect } from 'react';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
+import { ProgressCircle } from 'react-native-svg-charts';
 
 
 
 //teste
 WebBrowser.maybeCompleteAuthSession();
+
+
+
+
+
 
 function Login() {
   const navigation = useNavigation();
@@ -120,10 +126,6 @@ function Principal() {
   const [selectedSeg, setSelectedSeg] = useState(null);
   const [selectedCot, setSelectedCot] = useState(null);
   const [selectedIntrisseco, setSelectedIntrisseco] = useState(null);
-  const [selectedDamodaran, setSelectedDamodaran] = useState(null);
-  const [selectedDifPercIntrisseco, setSelectedDifPercIntrisseco] = useState(null);
-  const [selectedDifPercDamodaran, setSelectedDifPercDamodaran] = useState(null);
-  const [selectedMediaValution, setSelectedMediaValution] = useState(null);
   const [selectedRiscoMedia, setSelectedRiscoMedia] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const renderItem = ({ item }) => {
@@ -137,13 +139,10 @@ function Principal() {
     setSelectedSeg(item.seg);
     setSelectedCot(item.cot);
     setSelectedIntrisseco(item.intrisseco);
-    setSelectedDamodaran(item.damodaran);
-    setSelectedDifPercIntrisseco(item.difpercintrisseco);
-    setSelectedDifPercDamodaran(item.difpercdamodaran);
-    setSelectedMediaValution(item.mediavalution);
     setSelectedRiscoMedia(item.riscomedia);
     setModalVisible(!modalVisible);
     setFilteredEmpresas([]);
+    
 
   };
 
@@ -184,9 +183,9 @@ function Principal() {
             <Text style={styles.txtInfo}>Valor Intrínseco: </Text>
             <Text style={styles.txtInfoDados}>R$: {selectedIntrisseco}</Text>
             <Text style={styles.txtInfo}>Cotação X Intrínseco: </Text>
-            <Text style={styles.txtInfoDados}>{selectedDifPercIntrisseco} %</Text>
-            <Text style={styles.txtInfo}>Risco: </Text>
             <Text style={styles.txtInfoDados}>{selectedRiscoMedia} %</Text>
+            <Text style={styles.txtInfo}>Risco: </Text>
+            <ProgressCircle style={{ height: 100 }} progress={selectedRiscoMedia / 100} cornerRadius={45} progressColor={'#00913d'} fill={'#00913d'} />
 
           </View>
           <View style={styles.containerBtnFechar}>
