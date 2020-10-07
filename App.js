@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
 
   txtInfo: {
     fontSize: 15,
-    padding: 5hu,
+    padding: 5,
     marginLeft: 5,
     fontWeight: 'bold'
 
