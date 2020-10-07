@@ -176,19 +176,13 @@ function Principal() {
             <Text style={styles.txtInfoDados}>{selectedTik}</Text>
             <Text style={styles.txtInfo}>Segmento: </Text>
             <Text style={styles.txtInfoDados}>{selectedSeg}</Text>
-            <Text style={styles.txtInfo}>Contação Intraday: </Text>
+            <Text style={styles.txtInfo}>Contação: </Text>
             <Text style={styles.txtInfoDados}>R$: {selectedCot}</Text>
             <Text style={styles.txtInfo}>Valor Intrínseco: </Text>
             <Text style={styles.txtInfoDados}>R$: {selectedIntrisseco}</Text>
-            <Text style={styles.txtInfo}>Valor Fluxo de Caixa Descontado (FCD): </Text>
-            <Text style={styles.txtInfoDados}>R$: {selectedDamodaran}</Text>
             <Text style={styles.txtInfo}>Cotação X Intrínseco: </Text>
             <Text style={styles.txtInfoDados}>{selectedDifPercIntrisseco} %</Text>
-            <Text style={styles.txtInfo}>Cotação X FCD: </Text>
-            <Text style={styles.txtInfoDados}>{selectedDifPercDamodaran} %</Text>
-            <Text style={styles.txtInfo}>Média Intrínseco X FCD: </Text>
-            <Text style={styles.txtInfoDados}>{selectedMediaValution} %</Text>
-            <Text style={styles.txtInfo}>Cotação X Média: </Text>
+            <Text style={styles.txtInfo}>Risco: </Text>
             <Text style={styles.txtInfoDados}>{selectedRiscoMedia} %</Text>
 
           </View>
@@ -316,6 +310,7 @@ const styles = StyleSheet.create({
 
   logoEmp: {
     width: 46,
+    resizeMode:"contain",
     height: 38,
 
   },
@@ -349,6 +344,7 @@ const styles = StyleSheet.create({
   logoEmpResult: {
     width: 86,
     height: 86,
+    resizeMode: "contain",
     marginRight: 20
 
 
