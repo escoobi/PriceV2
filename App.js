@@ -5,77 +5,40 @@ import { useNavigation } from '@react-navigation/native';
 import TextInput from 'react-native-textinput-with-icons';
 import React, { useState, useEffect } from 'react';
 import * as AppleAuthentication from 'expo-apple-authentication';
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
 import { ProgressCircle } from 'react-native-svg-charts';
-
-
-
-//teste
-WebBrowser.maybeCompleteAuthSession();
-
-
-
-
-
+import { AntDesign } from '@expo/vector-icons';
 
 function Login() {
   const navigation = useNavigation();
-
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    expoClientId: '391799328882-5sp054b8r201pv7r0kf74m803vpigu91.apps.googleusercontent.com',
-    iosClientId: '391799328882-1mj5jgtqja6o7h9bio7fns0ucnlifrqe.apps.googleusercontent.com',
-    androidClientId: '391799328882-mktjd75qt55bufnot8b4le2imhin8dc8.apps.googleusercontent.com',
-    webClientId: '391799328882-5sp054b8r201pv7r0kf74m803vpigu91.apps.googleusercontent.com',
-  });
-
-  useEffect(() => {
-    if (response?.type === 'success') {
-      //const { authentication } = response;
-      navigation.navigate('principal');
-    }
-  }, [response]);
-
-
   return (
     < View style={styles.container} >
 
       <Image source={require('./assets/logoAuth.png')}
         style={styles.logo} />
       <StatusBar barStyle='dark-content'></StatusBar>
-
-      <TouchableOpacity style={styles.googleAuth} onPress={() => { promptAsync(); }}>
-        <Image style={styles.logoGoogle} source={require('./assets/g.png')} />
-        <Text style={styles.txtGoogle}>Continue com o Google</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.googleAuth} onPress={async () => {
-        try {
-          const credential = await AppleAuthentication.signInAsync({
-            requestedScopes: [
-              AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-              AppleAuthentication.AppleAuthenticationScope.EMAIL,
-            ],
-          });
-          // signed in
-          console.log("foi");
-          navigation.navigate('principal');
-
-        } catch (e) {
-          if (e.code === 'ERR_CANCELED') {
-            // handle that the user canceled the sign-in flow
-            
-          } else {
-            // handle other errors
+      <AppleAuthentication.AppleAuthenticationButton
+        buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+        buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+        cornerRadius={5}
+        style={{ width: 200, height: 44 }}
+        onPress={async () => {
+          try {
+            const credential = await AppleAuthentication.signInAsync({
+              requestedScopes: [
+                AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+                AppleAuthentication.AppleAuthenticationScope.EMAIL,
+              ],
+            });
+            navigation.navigate('principal');
+          } catch (e) {
+            if (e.code === 'ERR_CANCELED') {
+              // handle that the user canceled the sign-in flow
+            } else {
+              // handle other errors
+            }
           }
-        }
-      }}>
-        <Image style={styles.logoGoogle} source={require('./assets/a.png')} />
-        <Text style={styles.txtGoogle}>Continue com a Apple</Text>
-      </TouchableOpacity>
-
-    
-
+        }}
+      />
 
     </View>
 
@@ -88,9 +51,10 @@ function Principal() {
   const navigation = useNavigation();
   const [empresas, setEmpresas] = useState([]);
   const [filteredEmpresas, setFilteredEmpresas] = useState([]);
-
+/*
   useEffect(() => {
-    fetch('http://price.app.br:3000/empresa')
+    //https://price.app.br/price/index.jsp?tik=caml3
+    fetch('ibov.json')
       .then((res) => res.json())
       .then((json) => {
         setEmpresas(json);
@@ -100,7 +64,10 @@ function Principal() {
       });
 
 
-  }, []);
+  }, []);*/
+
+  const customData = require('./ibov.json.json');
+
   const findEmpresa = (query) => {
     if (query) {
       const regex = new RegExp(`${query.trim()}`, 'i');
@@ -142,10 +109,9 @@ function Principal() {
     setSelectedRiscoMedia(item.riscomedia);
     setModalVisible(!modalVisible);
     setFilteredEmpresas([]);
-    
+
 
   };
-
 
 
   return (
@@ -166,35 +132,35 @@ function Principal() {
         }}>
 
         <View style={styles.containerPesquisaEmpresaResultadoShow}>
-
-          <View style={styles.containerPraRiba}>
-            <View style={styles.containerLogo}>
-
-              <Image style={styles.logoEmpResult} source={{ uri: selectedLogo !== null ? selectedLogo : './assets/icon.png' }} />
-            </View>
-            <Text style={styles.txtInfo}>Empresa: </Text>
-            <Text style={styles.txtInfoDados}>{selectedEmp}</Text>
-            <Text style={styles.txtInfo}>Código: </Text>
-            <Text style={styles.txtInfoDados}>{selectedTik}</Text>
-            <Text style={styles.txtInfo}>Segmento: </Text>
-            <Text style={styles.txtInfoDados}>{selectedSeg}</Text>
-            <Text style={styles.txtInfo}>Contação: </Text>
-            <Text style={styles.txtInfoDados}>R$: {selectedCot}</Text>
-            <Text style={styles.txtInfo}>Valor Intrínseco: </Text>
-            <Text style={styles.txtInfoDados}>R$: {selectedIntrisseco}</Text>
-            <Text style={styles.txtInfo}>Cotação X Intrínseco: </Text>
-            <Text style={styles.txtInfoDados}>{selectedRiscoMedia} %</Text>
-            <Text style={styles.txtInfo}>Risco: </Text>
-            <ProgressCircle style={{ height: 100 }} progress={selectedRiscoMedia / 100} cornerRadius={45} progressColor={'#00913d'} fill={'#00913d'} />
-
+          <View style={styles.logoDetalhe}>
+            <Image style={styles.logoEmpResult} source={{ uri: selectedLogo !== null ? selectedLogo : './assets/icon.png' }} />
           </View>
-          <View style={styles.containerBtnFechar}>
-            <TouchableOpacity style={styles.botaoModal} onPress={() => {
-              setModalVisible(false);
-            }}>
-              <Text style={styles.btnTexto}>Fechar!</Text>
-            </TouchableOpacity>
-          </View>
+          <AntDesign style={styles.imgFechar} name="closecircleo" size={24} color="black" onPress={() => {
+            setModalVisible(false);
+          }} />
+
+          <Text style={styles.txtInfo}>Empresa: </Text>
+          <Text style={styles.txtInfoDados}>{selectedEmp}</Text>
+          <Text style={styles.txtInfo}>Código: </Text>
+          <Text style={styles.txtInfoDados}>{selectedTik}</Text>
+          <Text style={styles.txtInfo}>Segmento: </Text>
+          <Text style={styles.txtInfoDados}>{selectedSeg}</Text>
+          <Text style={styles.txtInfo}>Contação: </Text>
+          <Text style={styles.txtInfoDados}>R$: {selectedCot}</Text>
+          <Text style={styles.txtInfo}>Valor Intrínseco: </Text>
+          <Text style={styles.txtInfoDados}>R$: {selectedIntrisseco}</Text>
+          <Text style={styles.txtInfo}>Cotação X Intrínseco: </Text>
+          <Text style={styles.txtInfoDados}>{selectedRiscoMedia} %</Text>
+          <Text style={styles.txtInfo}>Risco: </Text>
+          <ProgressCircle style={{ height: 100 }} progress={selectedRiscoMedia / 40} cornerRadius={45} progressColor={'#00913d'} fill={'#00913d'} />
+
+
+
+
+
+
+
+
         </View>
 
       </Modal>
@@ -218,7 +184,7 @@ function Principal() {
           <FlatList data={filteredEmpresas} renderItem={renderItem} onPress={() => obterItem(item)} keyExtractor={item => item.key} extraData={selectedTik} />
         </View>
         <TouchableOpacity style={styles.botao} onPress={() => navigation.navigate('login')}>
-          <Text style={styles.btnTexto}>Sair</Text>
+          <Text style={styles.btnTexto}>Fechar</Text>
         </TouchableOpacity>
       </View>
 
@@ -312,16 +278,16 @@ const styles = StyleSheet.create({
 
   logoEmp: {
     width: 46,
-    resizeMode:"contain",
+    resizeMode: "contain",
     height: 38,
 
   },
 
   containerPesquisaEmpresaResultadoShow: {
     margin: 5,
-    marginTop: 20,
+    marginTop: 180,
     height: '100%',
-    backgroundColor: "white",
+    backgroundColor: "#FFF",
     borderTopEndRadius: 20,
     borderTopStartRadius: 20,
 
@@ -333,42 +299,35 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    alignItems: 'center',
     elevation: 5
 
   },
-  containerLogo: {
-    flex: 1,
-    flexDirection: 'column',
-    alignItems: 'stretch',
-    alignSelf: 'flex-end'
-  },
 
+  logoDetalhe:{
+    marginTop: -50,
+    borderRadius: 100,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    backgroundColor: '#fff'
+  },
   logoEmpResult: {
     width: 86,
     height: 86,
     resizeMode: "contain",
-    marginRight: 20
-
-
+    borderRadius: 100,
+   
   },
-  containerBtnFechar: {
 
-    flex: 1,
-    alignSelf: 'center',
-    padding: 60
-
-
-
-  },
-  botaoModal: {
-    width: 240,
-    height: 42,
-    backgroundColor: "#00913D",
-    borderRadius: 4,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 5
-
+  imgFechar: {
+    marginLeft: -260,
+    marginTop: -20
   },
 
   txtInfo: {
@@ -381,34 +340,6 @@ const styles = StyleSheet.create({
   txtInfoDados: {
     fontSize: 12,
     marginLeft: 20
-  },
-
-  googleAuth: {
-    alignContent: 'center',
-    width: 260,
-    height: 44,
-    marginTop: 10,
-    borderRadius: 5,
-    borderColor: '#000',
-    borderWidth: 0.5
-
-
-  },
-
-  txtGoogle: {
-    fontSize: 19,
-    marginLeft: 50,
-    marginTop: -20,
-
-
-
-  },
-
-  logoGoogle: {
-    width: 22,
-    height: 22,
-    marginTop: 10,
-    marginLeft: 15,
   },
 
 })
