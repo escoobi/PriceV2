@@ -3,13 +3,48 @@ import { NavigationContainer } from '@react-navigation/native';
 import { Assets, createStackNavigator } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
 import TextInput from 'react-native-textinput-with-icons';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { ProgressCircle } from 'react-native-svg-charts';
 import { AntDesign } from '@expo/vector-icons';
+import { State } from 'react-native-gesture-handler';
+
+
+function Detalhe({route, navigation}) {
+  
+  const { itemId} = route.params;
+  const [filteredEmpresasSelecionada, setFilteredEmpresasSelecionada] = useState([]);
+  useEffect(() => {
+    fetch('https://price.app.br/price/index.jsp?tik=' + itemId)
+      .then((response) => res.json())
+      .then((reponseJson) => {
+        //setFilteredEmpresasSelecionada(json);
+        console.log(json);
+      })
+
+      .catch((e) => {
+        console.log(e);
+        alert(e);
+      });
+
+
+  }, []);
+  console.log('https://price.app.br/price/index.jsp?tik=' + itemId);
+  return (
+    < View style={styles.container} >
+      <Text>itemId: {JSON.stringify(itemId)}</Text>
+      <StatusBar barStyle='dark-content'></StatusBar>
+
+    </View>
+
+  );
+}
+
 
 function Login() {
   const navigation = useNavigation();
+
+
   return (
     < View style={styles.container} >
 
@@ -47,14 +82,14 @@ function Login() {
 
 
 
+
+
 function Principal() {
   const navigation = useNavigation();
   const [empresas, setEmpresas] = useState([]);
   const [filteredEmpresas, setFilteredEmpresas] = useState([]);
-/*
   useEffect(() => {
-    //https://price.app.br/price/index.jsp?tik=caml3
-    fetch('ibov.json')
+    fetch('https://price.app.br/ibov.json')
       .then((res) => res.json())
       .then((json) => {
         setEmpresas(json);
@@ -64,15 +99,14 @@ function Principal() {
       });
 
 
-  }, []);*/
+  }, []);
 
-  const customData = require('./ibov.json.json');
+
 
   const findEmpresa = (query) => {
     if (query) {
       const regex = new RegExp(`${query.trim()}`, 'i');
       setFilteredEmpresas(empresas.filter((dados) => dados.tik.search(regex) >= 0));
-
     }
     else {
       setFilteredEmpresas([]);
@@ -95,31 +129,39 @@ function Principal() {
   const [selectedIntrisseco, setSelectedIntrisseco] = useState(null);
   const [selectedRiscoMedia, setSelectedRiscoMedia] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+
   const renderItem = ({ item }) => {
+
     const backgroundColor = item.tik === selectedTik ? '#FFF9' : '#FFF';
     return <Item tik={item.tik} logo={item.logo} onPress={() => getItem(item)} style={{ backgroundColor }} />;
+
   };
   const getItem = (item) => {
-    setSelectedEmp(item.emp);
-    setSelectedLogo(item.logo);
-    setSelectedTik(item.tik);
-    setSelectedSeg(item.seg);
-    setSelectedCot(item.cot);
-    setSelectedIntrisseco(item.intrisseco);
-    setSelectedRiscoMedia(item.riscomedia);
-    setModalVisible(!modalVisible);
-    setFilteredEmpresas([]);
+
+    //    return <Item tik={item.tik} logo={item.logo} onPress={() => getItem(item)} style={{ backgroundColor }} />;
+
+
+    // this.props.navigation.navigate('detalhe', {name: 'teste'});*/
+    /* setSelectedEmp(item.emp);*/
+
+
+    navigation.navigate('detalhe', {itemId : item.tik});
+    /*
+     setSelectedLogo(item.logo);
+     setSelectedTik(item.tik);
+     setSelectedSeg(item.seg);
+     setSelectedCot(item.cot);
+     setSelectedIntrisseco(item.intrisseco);
+     setSelectedRiscoMedia(item.riscomedia);
+     setFilteredEmpresasSelecionada(item.tik);
+     //setModalVisible(!modalVisible);*/
+
 
 
   };
 
 
   return (
-
-
-
-
-
     <View style={styles.containerPesquisa}>
       <StatusBar barStyle='dark-content'></StatusBar>
 
@@ -127,9 +169,9 @@ function Principal() {
         animationType={'slide'}
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => {
+        /*onRequestClose={() => {
           Alert.alert("Modal has been closed.");
-        }}>
+        }}*/>
 
         <View style={styles.containerPesquisaEmpresaResultadoShow}>
           <View style={styles.logoDetalhe}>
@@ -153,19 +195,9 @@ function Principal() {
           <Text style={styles.txtInfoDados}>{selectedRiscoMedia} %</Text>
           <Text style={styles.txtInfo}>Risco: </Text>
           <ProgressCircle style={{ height: 100 }} progress={selectedRiscoMedia / 40} cornerRadius={45} progressColor={'#00913d'} fill={'#00913d'} />
-
-
-
-
-
-
-
-
         </View>
 
       </Modal>
-
-
 
       <View style={styles.containerPesquisaEmpresa}>
         <TextInput marginBottom={10} onChangeText={(text) => findEmpresa(text)} autoFocus={true}
@@ -181,7 +213,7 @@ function Principal() {
           fontSize={16}
           fontWeight="bold" />
         <View style={styles.containerPesquisaEmpresaResultado}>
-          <FlatList data={filteredEmpresas} renderItem={renderItem} onPress={() => obterItem(item)} keyExtractor={item => item.key} extraData={selectedTik} />
+          <FlatList data={filteredEmpresas} renderItem={renderItem} keyExtractor={item => item.key} extraData={selectedTik} />
         </View>
         <TouchableOpacity style={styles.botao} onPress={() => navigation.navigate('login')}>
           <Text style={styles.btnTexto}>Fechar</Text>
@@ -201,6 +233,8 @@ export default class App extends React.Component {
         <Stack.Navigator headerMode="none">
           <Stack.Screen name="login" component={Login} />
           <Stack.Screen name="principal" component={Principal} />
+          <Stack.Screen name="detalhe" component={Detalhe} />
+
         </Stack.Navigator>
       </NavigationContainer>
     );
@@ -304,7 +338,7 @@ const styles = StyleSheet.create({
 
   },
 
-  logoDetalhe:{
+  logoDetalhe: {
     marginTop: -50,
     borderRadius: 100,
     shadowColor: "#000",
@@ -322,7 +356,7 @@ const styles = StyleSheet.create({
     height: 86,
     resizeMode: "contain",
     borderRadius: 100,
-   
+
   },
 
   imgFechar: {
