@@ -5,37 +5,96 @@ import { useNavigation } from '@react-navigation/native';
 import TextInput from 'react-native-textinput-with-icons';
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import * as AppleAuthentication from 'expo-apple-authentication';
-import { ProgressCircle } from 'react-native-svg-charts';
 import { AntDesign } from '@expo/vector-icons';
-import { State } from 'react-native-gesture-handler';
+import ProgressCircle from 'react-native-progress-circle';
+import numeral from 'numeral';
+import "numeral/locales/pt-br";
+import ShimmerPlaceholder from 'react-native-shimmer-placeholder'
 
 
-function Detalhe({route, navigation}) {
-  
-  const { itemId} = route.params;
-  const [filteredEmpresasSelecionada, setFilteredEmpresasSelecionada] = useState([]);
-  useEffect(() => {
-    fetch('https://price.app.br/price/index.jsp?tik=' + itemId)
-      .then((response) => res.json())
-      .then((reponseJson) => {
-        //setFilteredEmpresasSelecionada(json);
-        console.log(json);
-      })
-
-      .catch((e) => {
-        console.log(e);
-        alert(e);
-      });
 
 
-  }, []);
-  console.log('https://price.app.br/price/index.jsp?tik=' + itemId);
+
+
+
+
+function Detalhe({ route, navigation }) {
+
+
+
+  const { itemId } = route.params;
+  const [data, setData] = useState([]);
+  const getMoviesFromApiAsync = async () => {
+    try {
+      let response = await fetch('https://price.app.br/price/empresa.jsp?tik=' + itemId, { headers: { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=UTF-8' } });
+
+      setData(await response.json());
+
+
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+
+  getMoviesFromApiAsync();
+
+
+
+  numeral.locale('pt-br');
+
+
   return (
+
+
+
+
     < View style={styles.container} >
-      <Text>itemId: {JSON.stringify(itemId)}</Text>
+
+
+      <ShimmerPlaceHolder />
+      <ShimmerPlaceHolder visible={isFetched}>
+        <Text>
+          Wow, awesome here.
+  </Text>
+      </ShimmerPlaceHolder>
+
+
+
+
+
       <StatusBar barStyle='dark-content'></StatusBar>
+      <View style={styles.logoDetalhe}>
+        <Image style={styles.logoEmpResult} source={{ uri: data.logo !== null ? data.logo : './assets/icon.png' }} />
+      </View>
+      <AntDesign style={styles.imgFechar} name="closecircleo" size={24} color="black" onPress={() => navigation.navigate('principal')} />
+
+      <Text style={styles.txtInfo}>Contação:</Text>
+      <Text style={styles.txtInfoDados}>{numeral(data.cot).format("$0.00")}</Text>
+      <Text style={styles.txtInfo}>Valor Intrínseco: </Text>
+      <Text style={styles.txtInfoDados}>{numeral(data.intrinseco).format("$0.00")}</Text>
+      <Text style={styles.txtInfo}>Código: </Text>
+      <Text style={styles.txtInfoDados}>{data.tik}</Text>
+      <Text style={styles.txtInfo}>Segmento: </Text>
+      <Text style={styles.txtInfoDados}>{data.segmento}</Text>
+
+      <Text style={styles.txtInfo}>Desconto: </Text>
+      <ProgressCircle
+        percent={(((numeral(data.cot).format("00") - numeral(data.intrinseco).format("00")) / numeral(data.cot).format("00")) * 100) * -1}
+        radius={50}
+        borderWidth={8}
+        color="#00913D"
+        shadowColor="#999"
+        bgColor="#fff"
+      >
+        <Text style={{ fontSize: 18 }}>{numeral((((numeral(data.cot).format("00") - numeral(data.intrinseco).format("00")) / numeral(data.cot).format("00")) * 100) * -1).format("00") + "%"}</Text>
+      </ProgressCircle>
+
+
 
     </View>
+    
 
   );
 }
@@ -93,6 +152,7 @@ function Principal() {
       .then((res) => res.json())
       .then((json) => {
         setEmpresas(json);
+        console.log(json);
       })
       .catch((e) => {
         alert(e);
@@ -121,15 +181,9 @@ function Principal() {
     </TouchableOpacity>
 
   );
-  const [selectedLogo, setSelectedLogo] = useState(null);
-  const [selectedEmp, setSelectedEmp] = useState(null);
-  const [selectedTik, setSelectedTik] = useState(null);
-  const [selectedSeg, setSelectedSeg] = useState(null);
-  const [selectedCot, setSelectedCot] = useState(null);
-  const [selectedIntrisseco, setSelectedIntrisseco] = useState(null);
-  const [selectedRiscoMedia, setSelectedRiscoMedia] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
 
+
+  const [selectedTik, setSelectedTik] = useState(null);
   const renderItem = ({ item }) => {
 
     const backgroundColor = item.tik === selectedTik ? '#FFF9' : '#FFF';
@@ -137,79 +191,24 @@ function Principal() {
 
   };
   const getItem = (item) => {
-
-    //    return <Item tik={item.tik} logo={item.logo} onPress={() => getItem(item)} style={{ backgroundColor }} />;
-
-
-    // this.props.navigation.navigate('detalhe', {name: 'teste'});*/
-    /* setSelectedEmp(item.emp);*/
-
-
-    navigation.navigate('detalhe', {itemId : item.tik});
-    /*
-     setSelectedLogo(item.logo);
-     setSelectedTik(item.tik);
-     setSelectedSeg(item.seg);
-     setSelectedCot(item.cot);
-     setSelectedIntrisseco(item.intrisseco);
-     setSelectedRiscoMedia(item.riscomedia);
-     setFilteredEmpresasSelecionada(item.tik);
-     //setModalVisible(!modalVisible);*/
-
-
-
+    navigation.navigate('detalhe', { itemId: item.tik });
   };
 
 
   return (
     <View style={styles.containerPesquisa}>
       <StatusBar barStyle='dark-content'></StatusBar>
-
-      <Modal
-        animationType={'slide'}
-        transparent={true}
-        visible={modalVisible}
-        /*onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-        }}*/>
-
-        <View style={styles.containerPesquisaEmpresaResultadoShow}>
-          <View style={styles.logoDetalhe}>
-            <Image style={styles.logoEmpResult} source={{ uri: selectedLogo !== null ? selectedLogo : './assets/icon.png' }} />
-          </View>
-          <AntDesign style={styles.imgFechar} name="closecircleo" size={24} color="black" onPress={() => {
-            setModalVisible(false);
-          }} />
-
-          <Text style={styles.txtInfo}>Empresa: </Text>
-          <Text style={styles.txtInfoDados}>{selectedEmp}</Text>
-          <Text style={styles.txtInfo}>Código: </Text>
-          <Text style={styles.txtInfoDados}>{selectedTik}</Text>
-          <Text style={styles.txtInfo}>Segmento: </Text>
-          <Text style={styles.txtInfoDados}>{selectedSeg}</Text>
-          <Text style={styles.txtInfo}>Contação: </Text>
-          <Text style={styles.txtInfoDados}>R$: {selectedCot}</Text>
-          <Text style={styles.txtInfo}>Valor Intrínseco: </Text>
-          <Text style={styles.txtInfoDados}>R$: {selectedIntrisseco}</Text>
-          <Text style={styles.txtInfo}>Cotação X Intrínseco: </Text>
-          <Text style={styles.txtInfoDados}>{selectedRiscoMedia} %</Text>
-          <Text style={styles.txtInfo}>Risco: </Text>
-          <ProgressCircle style={{ height: 100 }} progress={selectedRiscoMedia / 40} cornerRadius={45} progressColor={'#00913d'} fill={'#00913d'} />
-        </View>
-
-      </Modal>
-
       <View style={styles.containerPesquisaEmpresa}>
         <TextInput marginBottom={10} onChangeText={(text) => findEmpresa(text)} autoFocus={true}
           leftIcon="search"
           leftIconSize={30}
-          leftIconColor="#222221"
+          leftIconColor="#000"
           leftIconType="oct"
-          rippleColor="#222221"
-          underlineColor="#222221"
-          underlineActiveColor="#222221"
+          rippleColor="#000"
+          underlineColor="#000"
+          underlineActiveColor="#000"
           label="Código da empresa"
-          labelActiveColor="#22221"
+          labelActiveColor="#000"
           fontSize={16}
           fontWeight="bold" />
         <View style={styles.containerPesquisaEmpresaResultado}>
@@ -244,8 +243,9 @@ export default class App extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
+
     flex: 1,
-    backgroundColor: "#FFF",
+    backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center"
   },
@@ -376,6 +376,25 @@ const styles = StyleSheet.create({
     marginLeft: 20
   },
 
+
+  circleeeee: {
+    height: "56px",
+    width: "56px",
+    backgroundColor: 'red',
+
+  },
+  lineeeeee: {
+    width: "96px",
+    height: "8px",
+    backgroundColor: 'red',
+    alignSelf: "center",
+    marginLeft: "16px",
+
+  }
+
+
+
 })
+
 
 
